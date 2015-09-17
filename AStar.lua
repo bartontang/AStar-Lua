@@ -28,9 +28,9 @@ local AStar = class("AStar")
 -- 可通行标识符
 local AVAILABLE_PANEL = 0
 
-function AStar.create(map, startPoint, endPoint, four_dir)
+function AStar.create(map, mapRows, mapCols, startPoint, endPoint, four_dir)
     local a_star = AStar.new()
-    a_star:init(map, startPoint, endPoint, four_dir)
+    a_star:init(map, mapRows, mapCols, startPoint, endPoint, four_dir)
     return a_star
 end
 
@@ -39,7 +39,7 @@ function AStar:ctor()
 end
 
 -- 地图、起始点、终点
-function AStar:init(map, startPoint, endPoint, four_dir)
+function AStar:init(map, mapRows, mapCols, startPoint, endPoint, four_dir)
     self.startPoint = startPoint
     self.endPoint   = endPoint
     self.map        = map
@@ -47,15 +47,24 @@ function AStar:init(map, startPoint, endPoint, four_dir)
     self.diag       = 1.4 -- 对角线长， 根号2 一位小数
     self.open_list  = {}
     self.close_list = {}
-    self.mapRows    = #map
-    self.mapCols    = #map[1]
+    self.mapRows    = mapRows--#map
+    self.mapCols    = mapCols--#map[1]
     self.four_dir   = four_dir -- 使用4方向的寻路还是八方向的寻路
 end
+
+-- 获取地图的索引
+function AStar:get_map_index(row, col)
+    local index = (row - 1) * self.mapRows + col
+    print("get_map_index(row, col) = "..index)
+    return index
+end
+
 
 -- 搜索路径
 function AStar:searchPath()
     -- 验证终点是否为阻挡，如果为阻挡，则直接返回空路径
-    if self.map[self.endPoint.row][self.endPoint.col] ~= AVAILABLE_PANEL then
+    local endIndex = self:get_map_index(self.endPoint.row, self.endPoint.col)
+    if self.map[endIndex] ~= AVAILABLE_PANEL then
         print("row = "..self.endPoint.row.." col = "..self.endPoint.col.." 是阻挡！！！无法寻路")
         return nil
     end
@@ -72,7 +81,8 @@ function AStar:searchPath()
     -- 检查边界、障碍点 
     local check = function(row, col)
         if 1 <= row and row <= self.mapRows and 1 <= col and col <= self.mapCols then
-            if self.map[row][col] == AVAILABLE_PANEL or (row == self.endPoint.row and col == self.endPoint.col) then
+            local index = self:get_map_index(row, col)
+            if self.map[index] == AVAILABLE_PANEL or (row == self.endPoint.row and col == self.endPoint.col) then
                 return true
             end
         end
