@@ -55,7 +55,7 @@ end
 
 -- 获取地图的索引
 function AStar:get_map_index(row, col)
-    local index = (row - 1) * self.mapRows + col
+    local index = (row - 1) * self.mapCols + col
     print("get_map_index(row, col) = "..index)
     return index
 end
